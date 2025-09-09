@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern Cipher — Proposal</title>
+  <meta name="description" content="Modern Cipher • Dynamic proposals with admin dashboard." />
+  <link rel="icon" type="image/x-icon" href="app/assets/img/mdc.ico" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="app/assets/css/base.css" />
+  <link rel="stylesheet" href="app/assets/css/public.css" />
+  <link rel="stylesheet" href="app/assets/css/admin.css" />
+  <link rel="stylesheet" href="app/assets/css/select-modal.css" />
+  <link rel="stylesheet" href="app/assets/css/details-modal.css" />
+  <link rel="stylesheet" href="app/assets/css/roi-calculator.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    window.App = window.App || {};
+    (function () {
+      const parts = location.pathname.split('/').filter(Boolean);
+      App.BASE = parts.length ? ('/' + parts[0] + '/') : '/';
+    })();
+    window.APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUrj9XH55c2kyiuIQbuE0F_66gtXuZNkYUhlrDyCzXV2cK18sy3acx6zSxcp7-CVnG7w/exec"; 
+  </script>
+
+  <script src="app/assets/js/utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+  
+  <script type="module" src="app/assets/js/firebase.js"></script>
+  <script src="app/assets/js/store.js"></script>
+  <script src="app/assets/js/ui/roi-calculator.js"></script>
+  <script src="app/assets/js/ui/details-modal.js"></script>
+  <script src="app/assets/js/ui/select-modal.js"></script>
+  <script src="app/assets/js/ui/components.js"></script>
+  <script src="app/assets/js/admin/admin.js"></script>
+  <script src="app/assets/js/public_app.js"></script>
+  <script src="app/assets/js/router.js"></script>
+</body>
+</html>

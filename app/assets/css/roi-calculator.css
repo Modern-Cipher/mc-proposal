@@ -1,0 +1,99 @@
+/* ===== Custom Modal Styles ===== */
+.details-modal { border-radius: 16px !important; }
+.details-modal-header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px; }
+.details-modal-header h2 { margin: 0; color: var(--text); }
+.details-modal-content { text-align: left; }
+.details-feat-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; }
+.details-feat-list li { display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
+.details-feat-list li i { color: var(--brand); }
+.details-modal-actions { margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; display: flex; justify-content: center; gap: 12px; }
+#print-info-form .form-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; text-align: left; }
+#print-info-form .full-width { grid-column: 1 / -1; }
+
+/* FIX: Allow tooltip to be visible outside the main content area of the modal */
+.swal2-html-container {
+    overflow: visible !important;
+}
+
+/* ===== Advanced ROI Calculator Styles ===== */
+.roi-modal-header { text-align: center; }
+.roi-modal-header .chip { display: inline-block; margin-top: 8px; background: #eef4ff; border-color: #dbeafe; }
+.roi-modal-content { display: grid; grid-template-columns: 1fr 1.2fr; gap: 32px; margin-top: 24px; text-align: left; }
+.roi-inputs .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.roi-inputs .form-field { display: flex; flex-direction: column; }
+.roi-inputs label.small { margin-bottom: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.roi-inputs .full-width { grid-column: 1 / -1; }
+.roi-results-detailed { background: #f8faff; border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+.roi-results-detailed h4 { margin: 0 0 16px; text-align: center; color: var(--text); }
+.stat-card { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; margin-bottom: 12px; }
+.stat-card.primary-stat { background: var(--brand); color: #fff; text-align: center; }
+.stat-card.primary-stat .k { color: rgba(255,255,255,0.8); }
+.stat-card.primary-stat .v { color: #fff; font-size: 1.6rem; }
+.stat-card .k { font-size: 0.8rem; color: var(--muted); }
+.stat-card .v { font-size: 1.5rem; font-weight: 700; color: var(--brand); }
+.stat-card .v-small { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+.stat-card.full-width { grid-column: 1 / -1; }
+.progress-timeline { display: grid; gap: 16px; }
+.progress-item { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-items: center; gap: 4px 12px; }
+.progress-item span { grid-column: 1 / -1; grid-row: 1 / 2; font-size: 0.8rem; font-weight: 500; }
+.progress-bar-wrap { grid-column: 1 / 2; grid-row: 2 / 3; }
+.progress-value { grid-column: 2 / 3; grid-row: 2 / 3; text-align: right; }
+.progress-value strong { font-weight: 600; font-size: 0.8rem; }
+.progress-percent { font-size: 0.75rem; color: var(--muted); margin-left: 4px; }
+.progress-bar-wrap { width: 100%; background: #e5e7eb; border-radius: 99px; height: 8px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: var(--brand); border-radius: 99px; transition: width .5s ease-out; }
+.subscription-helper { display: flex; align-items: flex-start; gap: 12px; background: #eff6ff; padding: 12px !important; }
+.subscription-helper .info-tip { margin-left: 6px; cursor: pointer; color: var(--muted); font-size: 1rem; }
+.subscription-helper i { font-size: 1.5rem; color: var(--brand); }
+@media (max-width: 768px) { .roi-modal-content { grid-template-columns: 1fr; } .roi-inputs .form-grid { grid-template-columns: 1fr; } }
+
+/* ===== UPDATED: Complete Flatpickr Theme ===== */
+.flatpickr-calendar {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  z-index: 99999 !important;
+  width: 300px;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  color: var(--brand);
+  fill: var(--brand);
+}
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  color: var(--brand-2);
+  fill: var(--brand-2);
+}
+.flatpickr-current-month {
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+.numInputWrapper:hover {
+  background: rgba(45, 114, 244, 0.05);
+}
+.flatpickr-weekday {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.flatpickr-day {
+  color: var(--text);
+  border-color: transparent;
+  font-weight: 500;
+}
+.flatpickr-day:hover {
+  background: #eef4ff;
+}
+.flatpickr-day.today {
+  border-color: var(--brand-2);
+}
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+

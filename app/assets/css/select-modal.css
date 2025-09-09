@@ -1,0 +1,9 @@
+/* Select Modal styles (matches your Details modal look) */
+.select-modal { border-radius: 16px !important; }
+.select-modal .swal2-title { font-weight: 700; }
+.select-form-grid {
+  display:grid; gap:10px;
+  grid-template-columns: 140px 1fr 1fr;
+}
+.select-form-grid .full-width { grid-column: 1 / -1; }
+.select-form-grid .input { width:100%; }

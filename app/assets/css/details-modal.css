@@ -1,0 +1,165 @@
+/* ===== Details Modal & Print Form Styles ===== */
+.details-modal { border-radius: 16px !important; }
+.details-modal-header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px; }
+.details-modal-header h2 { margin: 0; color: var(--text); }
+.details-modal-content { text-align: left; }
+
+.details-feat-list {
+  list-style: none; padding: 0; margin: 12px 0 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;
+}
+.details-feat-list li {
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px dashed #eee; padding-bottom: 8px;
+}
+.details-feat-list li i { color: var(--brand); }
+
+.details-modal-actions {
+  margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee;
+  display: flex; justify-content: center; gap: 12px;
+}
+#print-info-form .form-grid { display: grid; grid-template-columns: auto 1fr; gap: 12px; text-align: left; align-items: center; }
+#print-info-form .full-width { grid-column: 1 / -1; }
+
+/* ===== PRINT: content-only, 12pt body, Features 10pt, 2 pages ===== */
+@media print {
+  body > *:not(#print-view) { display: none !important; }
+
+  @page { size: auto !important; margin: 0.5in !important; }
+  html, body { margin: 0 !important; padding: 0 !important; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12pt;              /* default body size */
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #print-view { display: block !important; color: #222; box-sizing: border-box !important; }
+
+  /* Brand header row: left=logo+name+address, middle=email/phone (right-aligned), right=QR */
+  .brand-block{
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    align-items:start;
+    gap:14px;
+    padding-bottom:10px;
+    border-bottom:1px solid #ccc;
+    margin-bottom:10px;
+    break-inside: avoid-page;
+  }
+  .brand-left{ display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; }
+  .brand-left img{ height:30px; width:30px; }
+  .brand-name{ font-weight:700; }
+  .brand-addr{ font-size:10pt; color:#555; }
+
+  .brand-contact{
+    justify-self:end; text-align:right; line-height:1.25;
+    font-size:10pt; color:#555;
+  }
+  .brand-contact .email{ font-weight:600; color:#333; }
+  .brand-contact .phone{ margin-top:2px; }
+
+  .brand-qr{ width:72px; height:72px; justify-self:end; align-self:start; }
+
+  /* Typography */
+  h1,h2,h3,h4,strong{ font-weight:600; color:#000; }
+  p{ margin:0 0 .55em; orphans:3; widows:3; }
+  .print-date{ text-align:right; margin-bottom:8px; font-size:11pt; }
+  .doc-title{ font-size:24pt; margin:8px 0 6px; color:var(--brand); }
+  .doc-subtitle{ font-size:12pt; color:#666; margin-bottom:8px; }
+  .client-info{ margin-bottom:10px; }
+  .client-info p{ margin:1px 0; }
+
+  /* Sections */
+  .section-break{ margin-top:12px; }
+  .section-break h2{
+    font-size:16pt; border-bottom:2px solid var(--brand);
+    padding-bottom:4px; margin-bottom:8px; break-after:avoid;
+  }
+  .section-break h3{ font-size:13pt; margin-bottom:6px; }
+  .small-note{ font-size:10pt; color:#666; margin-top:6px; }
+
+  /* Tables */
+  table{ width:100%; border-collapse:collapse; font-size:11pt; }
+  thead{ display:table-header-group; } tfoot{ display:table-footer-group; }
+  table,thead,tbody,tfoot,tr,th,td{ border:1px solid #ddd; }
+  tr,th,td{ break-inside:avoid-page; page-break-inside:avoid; }
+  .quote-table{ margin-top:6px; }
+  .quote-table td{ padding:5px 10px; }
+  .quote-table .price-label{ font-size:10pt; color:#777; }
+  .quote-table .price-cell{ font-size:12pt; text-align:right; width:130px; }
+  .quote-table .total-row{ background:#f5f5f5; }
+
+  /* Features: 2 columns, items intact — FONT SIZE = 10pt (only this section) */
+  .print-feat{
+    list-style:none; margin:0; padding-left:0;
+    -webkit-column-count:2; column-count:2;
+    -webkit-column-gap:18px; column-gap:18px;
+    font-size:10pt;                 /* ← 10pt per request */
+  }
+  .print-feat li{
+    margin:0 0 5px; padding-left:1.2em; text-indent:-1.2em;
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .print-feat li::before{ content:'✔'; color:var(--brand); margin-right:.5em; }
+
+  /* Page 2 begins here */
+  .highlights-start{ break-before:page; page-break-before:always; }
+  .agreement-section{ margin-top:14px; break-inside:avoid-page; }
+
+  /* Signature row: roomy */
+  .signature-area{
+    margin-top:18px !important;
+    display:grid !important; grid-template-columns:1fr 1fr 1fr; gap:22px !important;
+    break-inside:avoid-page;
+  }
+  .signature-area .sig-line { text-align:center }
+.signature-area .sig-line span { display:inline-block; margin-top:6px; }
+
+  .sig-line{
+    border-top:1px solid #333; padding-top:10px !important; min-height:42px !important;
+    break-inside:avoid-page; white-space:nowrap;
+  }
+  .sig-line span{ font-size:10pt; color:#555; }
+
+  /* Legal note lower */
+  .legal-note{
+    margin-top:18px !important; font-size:10pt; color:#777; text-align:center;
+    break-inside:avoid-page;
+  }
+}
+
+.page-break{ break-before:page; page-break-before:always; }
+/* ===== PRINT OVERRIDES: spacing + watermark ===== */
+@media print {
+  /* ≈5 lines na pagitan bago magsimula ang signature lines */
+  .agreement-section .signature-area {
+    margin-top: 7.5em !important;   /* 12pt * 1.5 line-height * 5 lines = ~7.5em */
+  }
+
+  /* ≈5 lines din na pagitan bago ang legal note */
+  .agreement-section .legal-note {
+    margin-top: 7.5em !important;
+  }
+
+  /* Watermark (stamp) sa gitna ng bawat page */
+  #print-view { position: relative; }
+  #print-view::before {
+    content: attr(data-watermark);       /* text galing JS */
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 84pt;                     /* adjust kung gusto mong mas subtle */
+    letter-spacing: 1px;
+    color: #000;
+    opacity: 0.045;                      /* subtle lang */
+    z-index: 0;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* siguraduhing nasa ibabaw ang tunay na content vs watermark */
+  #print-view .print-body { position: relative; z-index: 1; }
+}
