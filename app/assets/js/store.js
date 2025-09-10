@@ -17,10 +17,10 @@
     brand: { name: "Modern Cipher", logo: "app/assets/img/mc.png" },
     proposal: { title: "Project Proposal", subtitle:"Website & system bundle", note:"All prices VAT-exclusive." },
     packages: [
-      { key:"starter", name:"Starter", scope:"Brochure site", price:9900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Basic", ribbonColor:"gray" },
-      { key:"plus",    name:"Plus",    scope:"Brochure + CMS", price:19900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Popular", ribbonColor:"red" },
-      { key:"pro",     name:"Pro",     scope:"Booking + CMS",  price:29900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Best value", ribbonColor:"blue" },
-      { key:"premium", name:"Premium", scope:"Full system",    price:49900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Premium", ribbonColor:"gold" }
+      { key:"starter", name:"Starter", scope:"Brochure site", price:9900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Basic", ribbonColor:"gray", enabled: true },
+      { key:"plus",    name:"Plus",    scope:"Brochure + CMS", price:19900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Popular", ribbonColor:"red", enabled: true },
+      { key:"pro",     name:"Pro",     scope:"Booking + CMS",  price:29900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Best value", ribbonColor:"blue", enabled: true },
+      { key:"premium", name:"Premium", scope:"Full system",    price:49900, hosting:4000, cadence:"year (domain + hosting)", ribbon:"Premium", ribbonColor:"gold", enabled: true }
     ],
     faq:[
       { q:"How long is delivery?", a:"Usually 2–4 weeks depending on scope." },

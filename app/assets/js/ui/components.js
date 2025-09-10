@@ -8,6 +8,9 @@ window.PublicUI = (function () {
       maximumFractionDigits: 2,
     });
 
+  // ADDED: A helper function to get only packages marked as "visible"
+  const getVisiblePackages = (cfg) => (cfg.packages || []).filter(p => p.enabled !== false);
+
   async function renderAllInto({ root, cfg, cfgId }) {
     root.innerHTML = `
       <header class="header-card">
@@ -45,23 +48,25 @@ window.PublicUI = (function () {
   }
 
   function renderCards(host, cfg, cfgId) {
-    host.innerHTML = `<div class="cards">${cfg.packages
+    // UPDATED: Use the helper to only get visible packages
+    const visiblePackages = getVisiblePackages(cfg);
+
+    host.innerHTML = `<div class="cards">${visiblePackages
       .map((p) => card(p, cfg))
       .join("")}</div>`;
     host.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-act]");
       if (!btn) return;
       const key = btn.closest(".pkg").dataset.key;
+      // Note: We still find the package in the original cfg.packages array, which is correct.
       const pkg = cfg.packages.find((x) => x.key === key);
       if (!pkg) return;
 
-      // UPDATED: Call the new, separate modal functions
       if (btn.dataset.act === "details") {
         window.DetailsModal.open(pkg, cfg, cfgId);
       }
-      // This will be for the next step
       if (btn.dataset.act === "select") {
-        window.SelectModal.open(pkg, cfg, cfgId); // NEW
+        window.SelectModal.open(pkg, cfg, cfgId);
       }
     });
   }
@@ -107,17 +112,29 @@ window.PublicUI = (function () {
   }
 
   function renderHighlights(host, cfg) {
-    const highlights = (cfg.highlightFeatures || []).filter(
-      (h) => h.includedIn && h.includedIn.length > 0
-    );
-    if (highlights.length === 0) return;
+    // UPDATED: This logic is now smarter to only show highlights for visible packages.
+    const visiblePackages = getVisiblePackages(cfg);
+    const visiblePackageKeys = new Set(visiblePackages.map(p => p.key));
+
+    const highlights = (cfg.highlightFeatures || []).map(h => ({
+        ...h,
+        includedIn: (h.includedIn || []).filter(pkgKey => visiblePackageKeys.has(pkgKey))
+    })).filter(h => h.includedIn.length > 0);
+
+    if (highlights.length === 0) {
+        host.innerHTML = ''; // Clear the host if no highlights are visible
+        return;
+    }
+
     const packageNames = Object.fromEntries(
       cfg.packages.map((p) => [p.key, p.name])
     );
+
     host.innerHTML = `<div class="section-title">Exclusive Highlights</div><div class="swiper highlight-carousel"><div class="swiper-wrapper">${highlights
       .map((hf) => {
         const assignedPackages = (hf.includedIn || [])
           .map((key) => packageNames[key])
+          .filter(Boolean) // Filter out any names that might not be found
           .join(" & ");
         return `<div class="swiper-slide"><div class="highlight-card"><div class="highlight-icon"><i class="${
           hf.icon || "ri-star-line"
@@ -135,12 +152,20 @@ window.PublicUI = (function () {
   function renderCompare(host, cfg) {
     const allFeatures = cfg.featuresMatrix || [];
     if (allFeatures.length === 0) return;
-    host.innerHTML = `<div class="section-title">Feature Comparison</div><div class="table-wrap"><table><thead><tr><th>Feature</th>${cfg.packages
+
+    // UPDATED: Use the helper to only get visible packages for the comparison table
+    const visiblePackages = getVisiblePackages(cfg);
+    if (visiblePackages.length === 0) {
+        host.innerHTML = ''; // Clear the host if no packages are visible
+        return;
+    }
+    
+    host.innerHTML = `<div class="section-title">Feature Comparison</div><div class="table-wrap"><table><thead><tr><th>Feature</th>${visiblePackages
       .map((p) => `<th>${p.name}</th>`)
       .join("")}</tr></thead><tbody>${allFeatures
       .map(
         (f) =>
-          `<tr><td>${f.name}</td>${cfg.packages
+          `<tr><td>${f.name}</td>${visiblePackages
             .map((p) => {
               const has = (f.includedIn || []).includes(p.key);
               return `<td class="check">${has ? "✔" : "-"}</td>`;
@@ -149,6 +174,7 @@ window.PublicUI = (function () {
       )
       .join("")}</tbody></table></div>`;
   }
+  
   function renderFaqs(host, cfg) {
     const faqs = cfg.faq || [];
     if (faqs.length === 0) return;
@@ -159,8 +185,6 @@ window.PublicUI = (function () {
       )
       .join("")}</div>`;
   }
-
-  // DELETED the old openDetailsModal function. Its logic is now in details-modal.js
 
   return { renderAllInto };
 })();

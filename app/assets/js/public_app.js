@@ -4,8 +4,55 @@ window.PublicApp = (function () {
   const fmtDate = (v) => v ? new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
   
   let scrollListener = null;
-  // Hold the function to unsubscribe from the current real-time listener
   let currentConfigUnsubscribe = null;
+
+  // UPDATED: Added new rules to make cards equal height.
+  function injectFlexboxStyles() {
+    if (document.getElementById("public-flex-styles")) return;
+    const styleEl = document.createElement("style");
+    styleEl.id = "public-flex-styles";
+    styleEl.textContent = `
+        /* Default Mobile: 1 column */
+        .cards {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+        .cards .pkg {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 !important;
+            display: flex;           /* ADDED: Makes the card a flex container */
+            flex-direction: column;  /* ADDED: Stacks the card's content vertically */
+        }
+        .cards .pkg .feat {
+            flex-grow: 1;  /* ADDED: Allows the feature list to grow, pushing buttons to the bottom */
+        }
+
+        /* Tablet (screens wider than 768px): 2 columns */
+        @media (min-width: 768px) {
+            .cards {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: stretch; /* ADDED: This makes all cards in a row stretch to the same height */
+            }
+            .cards .pkg {
+                flex: 1 1 40%;
+                max-width: 380px;
+            }
+        }
+
+        /* Desktop (screens wider than 1200px): Up to 4 columns */
+        @media (min-width: 1200px) {
+            .cards .pkg {
+                flex-basis: 22%;
+            }
+        }
+    `;
+    document.head.appendChild(styleEl);
+  }
 
   function createFooter(footerSettings) {
     const socials = footerSettings.socials || {};
@@ -53,7 +100,6 @@ window.PublicApp = (function () {
     `;
   }
 
-  // Extracted the rendering logic to be called by the real-time listener
   async function renderProposalContent(holder, cfg, cfgId) {
       if (!cfg) {
         holder.innerHTML = `<div class="main-content-card" style="padding-top: 40px;"><div class="empty-wrap"><div class="empty-card"><h3>Invalid or Expired Link</h3><div class="small">The proposal was not found.</div></div></div></div>`;
@@ -75,12 +121,13 @@ window.PublicApp = (function () {
   }
 
   async function render(mount) {
-    // Clean up any existing listeners before rendering a new page
     if (scrollListener) window.removeEventListener('scroll', scrollListener);
     if (currentConfigUnsubscribe) {
         currentConfigUnsubscribe();
         currentConfigUnsubscribe = null;
     }
+
+    injectFlexboxStyles(); 
 
     const settings = await Store.getSettings();
     const footerSettings = settings.footer || Store.defaults().settings.footer;
@@ -103,7 +150,6 @@ window.PublicApp = (function () {
       sessionStorage.setItem('lastProposalId', seg2);
       holder.innerHTML = `<div class="hero" style="text-align:center"><div class="title">Loading proposal…</div></div>`;
       
-      // Subscribe to real-time updates for this proposal
       currentConfigUnsubscribe = Store.onConfigUpdate(seg2, (cfg) => {
         console.log('Real-time proposal update received.');
         renderProposalContent(holder, cfg, seg2);
@@ -120,6 +166,8 @@ window.PublicApp = (function () {
         currentConfigUnsubscribe();
         currentConfigUnsubscribe = null;
     }
+
+    injectFlexboxStyles(); 
 
     const settings = await Store.getSettings();
     const pageData = (settings.pages && settings.pages[pageKey]) 

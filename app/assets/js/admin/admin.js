@@ -12,6 +12,25 @@ window.Admin = (function () {
   const bc = new BroadcastChannel('mc-proposals');
   const qrImg = (url,size=180)=>`https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`;
 
+  // A small function to inject the CSS for our new toggle switch
+  function injectToggleStyles() {
+    if (document.getElementById("pkg-toggle-styles")) return;
+    const s = document.createElement("style");
+    s.id = "pkg-toggle-styles";
+    s.textContent = `
+      .pkg-visibility { display: flex; justify-content: space-between; align-items: center; background: #f0f2f5; padding: 6px 10px; border-radius: 6px; margin-top: 10px; }
+      .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+      .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+      input:checked + .slider { background-color: #0d6efd; }
+      input:checked + .slider:before { transform: translateX(18px); }
+      .slider.round { border-radius: 22px; }
+      .slider.round:before { border-radius: 50%; }
+    `;
+    document.head.appendChild(s);
+  }
+
   function render(root, page = 'analytics'){ rootEl = root; if(!Store.isAuthed()) return renderLogin(); return renderShell(page); }
 
   function renderLogin(){ rootEl.innerHTML = `<div class="auth-wrap"><div class="auth-card"><div class="auth-hero"><div class="brand" style="margin-bottom:10px"><div class="logo"><img src="app/assets/img/mc.png" alt=""></div><div class="name">Modern Cipher</div></div><h2>Sign in to Admin</h2><p>Protected dashboard for proposals and clients.</p></div><div class="auth-form"><div class="form-row"><label class="small">Email</label><input id="lgEmail" class="input" type="email"></div><div class="form-row"><label class="small">Password</label><input id="lgPass" class="input" type="password"></div><button class="btn" id="loginBtn"><i class="ri-login-box-line"></i> Sign in</button></div></div></div>`; $('#loginBtn').onclick = async ()=>{ try{ await Store.login($('#lgEmail').value.trim(), $('#lgPass').value); renderShell('analytics'); }catch(e){ alert(e?.message || 'Sign-in failed.'); }}; }
@@ -19,6 +38,7 @@ window.Admin = (function () {
   function renderShell(page){
     rootEl.innerHTML = `<div class="admin-shell"><aside class="admin-sidebar"><div class="admin-brand"><div class="logo"><img src="app/assets/img/mc.png" alt=""></div><strong>Modern Cipher</strong></div><nav class="admin-nav" id="adminNav"><a href="#/admin/analytics" data-page="analytics" class="admin-link"><i class="ri-dashboard-line"></i> Analytics</a><a href="#/admin/clients" data-page="clients" class="admin-link"><i class="ri-user-3-line"></i> Clients Proposal</a><a href="#/admin/approved" data-page="approved" class="admin-link"><i class="ri-checkbox-circle-line"></i> Approved</a><a href="#/admin/settings" data-page="settings" class="admin-link"><i class="ri-settings-3-line"></i> Settings</a></nav></aside><section class="admin-main"><header class="admin-topbar"><div class="search"><i class="ri-search-line"></i><input id="topSearch" class="input" style="border:none;box-shadow:none;padding:0" placeholder="Search..."></div><div style="display:flex;gap:8px;align:items-center"><button class="icon-btn" id="logoutBtn" title="Logout"><i class="ri-logout-box-r-line"></i></button></div></header><main class="admin-content" id="adminContent"></main><footer class="admin-footer">© ${new Date().getFullYear()} Modern Cipher. All rights reserved.</footer></section><nav class="admin-mobile-bar" id="adminMobile"><a href="#/admin/analytics" class="navbtn" data-page="analytics"><i class="ri-dashboard-line"></i><span class="small">Analytics</span></a><a href="#/admin/clients" class="navbtn" data-page="clients"><i class="ri-user-3-line"></i><span class="small">Clients</span></a><a href="#/admin/approved" class="navbtn" data-page="approved"><i class="ri-checkbox-circle-line"></i><span class="small">Approved</span></a><a href="#/admin/settings" class="navbtn" data-page="settings"><i class="ri-settings-3-line"></i><span class="small">Settings</span></a></nav></div>`;
     $('#logoutBtn').onclick = async ()=>{ if (currentListenerUnsubscribe) currentListenerUnsubscribe(); try{ await Store.logout(); }catch(_){ } renderLogin(); };
+    injectToggleStyles();
     
     // START: DYNAMIC SEARCH LOGIC
     const topSearch = $('#topSearch');
@@ -150,7 +170,6 @@ window.Admin = (function () {
         if(act==='copy') navigator.clipboard?.writeText(await getLink()).then(()=>Swal.fire({toast:true,position:'top-end',text:'Link copied!',timer:1500,showConfirmButton:false}));
         if(act==='edit') openClientForm(c);
         
-        // === THIS ACTION IS NOW FIXED ===
         if(act==='del'){
           const res = await Swal.fire({title:'Delete Client?',text:`This will permanently delete ${c.name} AND their proposal. This cannot be undone.`,icon:'warning',showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Yes, delete it!'});
           if(res.isConfirmed){
@@ -380,12 +399,54 @@ window.Admin = (function () {
         $$('#faqRows .faq-row', box).forEach((row, index) => { const item = cfg.faq[index]; if (!item) return; item.q = row.querySelector('.faq-q').value; item.a = row.querySelector('.faq-a').value; });
     }
 
-    const drawPackages = () => { packagesEditor.innerHTML = cfg.packages.map(p => `<div class="package-col" data-key="${p.key}"><label class="small">Name</label><input class="input" data-prop="name" value="${p.name}"><label class="small">Scope</label><input class="input" data-prop="scope" value="${p.scope}"><label class="small">Price (One-time)</label><input class="input" type="number" data-prop="price" value="${p.price}"><label class="small">Subscription Price</label><input class="input" type="number" data-prop="hosting" value="${p.hosting || 0}"><label class="small">Subscription Cadence</label><input class="input" data-prop="cadence" value="${p.cadence || 'per year'}"><label class="small">Ribbon</label><input class="input" data-prop="ribbon" value="${p.ribbon}"><label class="small">Color</label><select class="input" data-prop="ribbonColor"><option value="gray">Gray</option><option value="blue">Blue</option><option value="red">Red</option><option value="gold">Gold</option></select></div>`).join(''); cfg.packages.forEach(p => { const sel = packagesEditor.querySelector(`[data-key="${p.key}"] [data-prop="ribbonColor"]`); if(sel) sel.value = p.ribbonColor || 'gray'; }); };
+    // UPDATED: This function will now draw the toggle switch
+    const drawPackages = () => {
+      packagesEditor.innerHTML = cfg.packages.map(p => `
+        <div class="package-col" data-key="${p.key}">
+          <label class="small">Name</label><input class="input" data-prop="name" value="${p.name}">
+          <label class="small">Scope</label><input class="input" data-prop="scope" value="${p.scope}">
+          <label class="small">Price (One-time)</label><input class="input" type="number" data-prop="price" value="${p.price}">
+          <label class="small">Subscription Price</label><input class="input" type="number" data-prop="hosting" value="${p.hosting || 0}">
+          <label class="small">Subscription Cadence</label><input class="input" data-prop="cadence" value="${p.cadence || 'per year'}">
+          <label class="small">Ribbon</label><input class="input" data-prop="ribbon" value="${p.ribbon}">
+          <label class="small">Color</label>
+          <select class="input" data-prop="ribbonColor">
+            <option value="gray">Gray</option><option value="blue">Blue</option>
+            <option value="red">Red</option><option value="gold">Gold</option>
+          </select>
+          <div class="pkg-visibility">
+            <label class="small">Visible to Client</label>
+            <label class="switch">
+              <input type="checkbox" data-prop="enabled" ${p.enabled === false ? '' : 'checked'}>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      `).join('');
+      cfg.packages.forEach(p => { const sel = packagesEditor.querySelector(`[data-key="${p.key}"] [data-prop="ribbonColor"]`); if(sel) sel.value = p.ribbonColor || 'gray'; });
+    };
+
     const drawFeaturesMatrix = () => { featuresMatrixEl.innerHTML = `<table><thead><tr><th>Feature Name</th>${cfg.packages.map(p=>`<th>${p.name}</th>`).join('')}<th></th></tr></thead><tbody>${(cfg.featuresMatrix || []).map((feat, i) => `<tr data-index="${i}"><td data-label="Feature"><input class="input" value="${feat.name || ''}"></td>${cfg.packages.map(p => `<td data-label="${p.name}"><input type="checkbox" data-pkg="${p.key}" ${(feat.includedIn || []).includes(p.key) ? 'checked':''}></td>`).join('')}<td><button class="icon-btn rm-row" title="Delete Feature"><i class="ri-delete-bin-line"></i></button></td></tr>`).join('')}</tbody></table>`; };
     const drawHighlightsMatrix = () => { highlightsMatrixEl.innerHTML = `<table><thead><tr><th>Icon</th><th>Title</th><th>Desc.</th>${cfg.packages.map(p=>`<th>${p.name}</th>`).join('')}<th></th></tr></thead><tbody>${(cfg.highlightFeatures || []).map((hf, i) => `<tr data-index="${i}"><td data-label="Icon"><input class="input" value="${hf.icon || ''}"></td><td data-label="Title"><input class="input" value="${hf.title || ''}"></td><td data-label="Desc."><input class="input" value="${hf.description || ''}"></td>${cfg.packages.map(p => `<td data-label="${p.name}"><input type="checkbox" data-pkg="${p.key}" ${(hf.includedIn || []).includes(p.key) ? 'checked':''}></td>`).join('')}<td><button class="icon-btn rm-row" title="Delete Highlight"><i class="ri-delete-bin-line"></i></button></td></tr>`).join('')}</tbody></table>`; };
     const drawFAQ = () => { faqRows.innerHTML = (cfg.faq || []).map((it, i) => `<div class="faq-row" data-index="${i}"><div class="faq-inputs"><input class="input faq-q" placeholder="Question" value="${it.q || ''}"><input class="input faq-a" placeholder="Answer" value="${it.a || ''}"></div><button class="icon-btn rm-row" title="Delete FAQ"><i class="ri-delete-bin-line"></i></button></div>`).join(''); };
 
-    packagesEditor.addEventListener('input', e => { const input = e.target; const key = input.closest('.package-col').dataset.key; const pkg = cfg.packages.find(p => p.key === key); if(!pkg) return; const prop = input.dataset.prop; pkg[prop] = input.type === 'number' ? parseFloat(input.value) : input.value; if (prop === 'name') { syncDOMToData(); drawFeaturesMatrix(); drawHighlightsMatrix(); }});
+    // UPDATED: This listener now handles the toggle switch
+    packagesEditor.addEventListener('input', e => {
+      const input = e.target;
+      const key = input.closest('.package-col').dataset.key;
+      const pkg = cfg.packages.find(p => p.key === key);
+      if(!pkg) return;
+      const prop = input.dataset.prop;
+      
+      if (input.type === 'checkbox') {
+        pkg[prop] = input.checked;
+      } else {
+        pkg[prop] = input.type === 'number' ? parseFloat(input.value) : input.value;
+      }
+      
+      if (prop === 'name') { syncDOMToData(); drawFeaturesMatrix(); drawHighlightsMatrix(); }
+    });
+    
     $('#addFeature', box).onclick = () => { syncDOMToData(); cfg.featuresMatrix.push({ name: 'New Feature', includedIn: [] }); drawFeaturesMatrix(); };
     $('#addHighlight', box).onclick = () => { syncDOMToData(); cfg.highlightFeatures.push({ icon: 'ri-add-line', title: 'New Highlight', description: '', includedIn: [] }); drawHighlightsMatrix(); };
     $('#faqAdd', box).onclick = () => { syncDOMToData(); cfg.faq.push({ q: '', a: '' }); drawFAQ(); };
