@@ -149,7 +149,15 @@ window.Admin = (function () {
         if(act==='view') window.open(await getLink(), '_blank');
         if(act==='copy') navigator.clipboard?.writeText(await getLink()).then(()=>Swal.fire({toast:true,position:'top-end',text:'Link copied!',timer:1500,showConfirmButton:false}));
         if(act==='edit') openClientForm(c);
-        if(act==='del'){ const res = await Swal.fire({title:'Delete Client?',text:`Permanently delete ${c.name}.`,icon:'warning',showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Yes, delete!'}); if(res.isConfirmed){ await Store.deleteClient(id); }} // Manual re-render removed
+        
+        // === THIS ACTION IS NOW FIXED ===
+        if(act==='del'){
+          const res = await Swal.fire({title:'Delete Client?',text:`This will permanently delete ${c.name} AND their proposal. This cannot be undone.`,icon:'warning',showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Yes, delete it!'});
+          if(res.isConfirmed){
+            await Store.deleteClient(c.id, c.configId);
+          }
+        }
+        
         if(act === 'dup') {
             const res = await Swal.fire({ title: 'Duplicate Proposal?', text: `This will create a new copy for "${c.name}".`, icon: 'question', showCancelButton: true, confirmButtonText: 'Yes, duplicate it!' });
             if (res.isConfirmed) {
@@ -161,7 +169,6 @@ window.Admin = (function () {
                 newData.configId = newConfigId;
                 await Store.addClient(newData);
                 await Swal.fire('Duplicated!', 'New proposal created.', 'success');
-                 // Manual re-render removed
             }
         }
     });
@@ -261,7 +268,6 @@ window.Admin = (function () {
             delete newSelections[pkgName];
             await Store.updateClient(id, { selections: newSelections });
             await Swal.fire({toast:true,position:'top-end',text:'Approval canceled.',timer:1200,showConfirmButton:false});
-            // Manual re-render removed
         }
     }
   });
@@ -411,7 +417,6 @@ window.Admin = (function () {
         if (isEdit) { await Store.saveConfig(payload.config, payload.configId); bc.postMessage({ type:'cfg-updated', id: payload.configId }); await Store.updateClient(c.id, payload); } else { const configId = await Store.saveConfig(payload.config); payload.configId = configId; await Store.addClient(payload); } 
         await Swal.fire({ title:'Saved!', icon:'success', timer:1200, showConfirmButton:false }); 
         ov.remove(); 
-        // Manual re-render removed - the real-time listener will handle it.
       } catch (err) { 
         console.error("Save failed:", err); 
         Swal.fire('Error', 'Could not save the client data. ' + err.message, 'error'); 

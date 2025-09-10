@@ -64,7 +64,7 @@
     });
   }
 
-  function linkFor(cfgId){ return location.origin + App.BASE + "#/p/" + cfgId; }
+  function linkFor(cfgId){ return location.origin + (window.App?.BASE || "") + "#/p/" + cfgId; }
 
   function isAuthed(){ return !!(window.FB?.auth?.currentUser); }
   function onAuth(callback){ return A().onAuthStateChanged(window.FB.auth, callback); }
@@ -87,7 +87,19 @@
   async function getClient(id){ const d = await A().getDoc(docRef("clients", id)); if(!d.exists()) return null; const v = d.data(); return { id, ...v, updatedAt: tsToDate(v.updatedAt) || tsToDate(v.createdAt) || new Date() }; }
   async function addClient(payload){ const now = A().serverTimestamp(); const ref = await A().addDoc(col("clients"), { ...payload, createdAt: now, updatedAt: now }); return ref.id; }
   async function updateClient(id, patch){ patch.updatedAt = A().serverTimestamp(); await A().updateDoc(docRef("clients", id), patch); }
-  async function deleteClient(id){ await A().deleteDoc(docRef("clients", id)); }
+  
+  // === THIS FUNCTION IS NOW FIXED ===
+  async function deleteClient(clientId, configId){
+    if (!clientId) return; // A small safety check
+    
+    // Deletes the main client document
+    await A().deleteDoc(docRef("clients", clientId));
+
+    // Also deletes the associated proposal config document if it exists
+    if (configId) {
+      await A().deleteDoc(docRef("configs", configId));
+    }
+  }
 
   async function getClientByConfigId(configId) {
     if (!configId) return null;
