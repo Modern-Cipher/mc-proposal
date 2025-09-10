@@ -100,6 +100,12 @@ window.Admin = (function () {
   }
   
   async function renderClients(el){
+    // START FIX: Clone the element to remove any old event listeners
+    const newEl = el.cloneNode(false);
+    el.parentNode.replaceChild(newEl, el);
+    el = newEl;
+    // END FIX
+
     const list = await Store.listClients();
     const rows = list.map(c=>{
         const selections = c.selections ? Object.keys(c.selections) : [];
@@ -151,6 +157,12 @@ window.Admin = (function () {
   }
   
  async function renderApproved(el){
+    // START FIX: Clone the element to remove any old event listeners
+    const newEl = el.cloneNode(false);
+    el.parentNode.replaceChild(newEl, el);
+    el = newEl;
+    // END FIX
+
   const allClients = await Store.listClients();
   const approvedItems = [];
   allClients.forEach(client => {
