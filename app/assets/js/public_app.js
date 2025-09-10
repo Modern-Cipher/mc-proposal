@@ -6,6 +6,17 @@ window.PublicApp = (function () {
 
   function createFooter(footerSettings) {
     const socials = footerSettings.socials || {};
+
+    // Helper function to ensure a URL has a protocol (e.g., https://)
+    const ensureProtocol = (url) => {
+      if (!url || url.trim() === '' || url.trim() === '#') return '#';
+      // If the URL doesn't start with http or https, prepend https://
+      if (!/^(https?:\/\/)/i.test(url)) {
+        return `https://${url}`;
+      }
+      return url;
+    };
+
     return `
       <footer class="site-footer">
         <div class="container">
@@ -14,11 +25,11 @@ window.PublicApp = (function () {
               <h4>${footerSettings.companyName}</h4>
               <p>${footerSettings.description}</p>
               <div class="footer-social">
-                ${socials.facebook ? `<a href="${socials.facebook}" class="soc-link" title="Facebook"><i class="ri-facebook-box-fill"></i></a>` : ''}
-                ${socials.viber ? `<a href="${socials.viber}" class="soc-link" title="Viber"><i class="ri-viber-fill"></i></a>` : ''}
-                ${socials.telegram ? `<a href="${socials.telegram}" class="soc-link" title="Telegram"><i class="ri-telegram-fill"></i></a>` : ''}
-                ${socials.tiktok ? `<a href="${socials.tiktok}" class="soc-link" title="TikTok"><i class="ri-tiktok-fill"></i></a>` : ''}
-                ${socials.website ? `<a href="${socials.website}" class="soc-link" title="Website"><i class="ri-global-line"></i></a>` : ''}
+                ${socials.facebook ? `<a href="${ensureProtocol(socials.facebook)}" target="_blank" rel="noopener noreferrer" class="soc-link" title="Facebook"><i class="ri-facebook-box-fill"></i></a>` : ''}
+                ${socials.viber ? `<a href="${ensureProtocol(socials.viber)}" target="_blank" rel="noopener noreferrer" class="soc-link" title="Viber"><i class="ri-viber-fill"></i></a>` : ''}
+                ${socials.telegram ? `<a href="${ensureProtocol(socials.telegram)}" target="_blank" rel="noopener noreferrer" class="soc-link" title="Telegram"><i class="ri-telegram-fill"></i></a>` : ''}
+                ${socials.tiktok ? `<a href="${ensureProtocol(socials.tiktok)}" target="_blank" rel="noopener noreferrer" class="soc-link" title="TikTok"><i class="ri-tiktok-fill"></i></a>` : ''}
+                ${socials.website ? `<a href="${ensureProtocol(socials.website)}" target="_blank" rel="noopener noreferrer" class="soc-link" title="Website"><i class="ri-global-line"></i></a>` : ''}
               </div>
             </div>
             <div class="footer-col">
