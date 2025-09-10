@@ -57,6 +57,13 @@
     const data = d.data();
     return { id, ...data };
   }
+  // REAL-TIME LISTENER for a single config document
+  function onConfigUpdate(id, callback) {
+    return A().onSnapshot(docRef("configs", id), (doc) => {
+      callback(doc.exists() ? { id, ...doc.data() } : null);
+    });
+  }
+
   function linkFor(cfgId){ return location.origin + App.BASE + "#/p/" + cfgId; }
 
   function isAuthed(){ return !!(window.FB?.auth?.currentUser); }
@@ -65,6 +72,18 @@
   async function logout(){ await window.FB.api.signOut(window.FB.auth); }
 
   async function listClients(){ const q = A().query(col("clients"), A().orderBy("updatedAt","desc")); const snap = await A().getDocs(q); return snap.docs.map(d=>{ const v = d.data(); return { id:d.id, ...v, updatedAt: tsToDate(v.updatedAt) || tsToDate(v.createdAt) || new Date() }; }); }
+  // REAL-TIME LISTENER for the clients collection
+  function onClientsUpdate(callback) {
+    const q = A().query(col("clients"), A().orderBy("updatedAt", "desc"));
+    return A().onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map(d => {
+        const v = d.data();
+        return { id: d.id, ...v, updatedAt: tsToDate(v.updatedAt) || tsToDate(v.createdAt) || new Date() };
+      });
+      callback(list);
+    });
+  }
+
   async function getClient(id){ const d = await A().getDoc(docRef("clients", id)); if(!d.exists()) return null; const v = d.data(); return { id, ...v, updatedAt: tsToDate(v.updatedAt) || tsToDate(v.createdAt) || new Date() }; }
   async function addClient(payload){ const now = A().serverTimestamp(); const ref = await A().addDoc(col("clients"), { ...payload, createdAt: now, updatedAt: now }); return ref.id; }
   async function updateClient(id, patch){ patch.updatedAt = A().serverTimestamp(); await A().updateDoc(docRef("clients", id), patch); }
@@ -95,6 +114,13 @@
     if (!d.exists()) return defaults().settings;
     return d.data();
   }
+  // REAL-TIME LISTENER for the settings document
+  function onSettingsUpdate(callback) {
+      return A().onSnapshot(docRef("settings", "main"), (doc) => {
+          callback(doc.exists() ? doc.data() : defaults().settings);
+      });
+  }
+
   async function saveSettings(settingsData) {
     await A().setDoc(docRef("settings", "main"), settingsData, { merge: true });
   }
@@ -108,12 +134,12 @@
   }
 
   window.Store = {
-    defaults, getConfig, linkFor,
+    defaults, getConfig, onConfigUpdate, linkFor,
     isAuthed, login, logout, onAuth,
-    listClients, getClient, addClient, updateClient, deleteClient,
+    listClients, onClientsUpdate, getClient, addClient, updateClient, deleteClient,
     getClientByConfigId,
     saveConfig,
-    getSettings, saveSettings,
+    getSettings, onSettingsUpdate, saveSettings,
     getProposalInfo, saveProposalInfo
   };
 })();

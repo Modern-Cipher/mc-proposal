@@ -2,21 +2,20 @@
 window.PublicApp = (function () {
   const $ = (s, r = document) => r.querySelector(s);
   const fmtDate = (v) => v ? new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+  
   let scrollListener = null;
+  // Hold the function to unsubscribe from the current real-time listener
+  let currentConfigUnsubscribe = null;
 
   function createFooter(footerSettings) {
     const socials = footerSettings.socials || {};
-
-    // Helper function to ensure a URL has a protocol (e.g., https://)
     const ensureProtocol = (url) => {
       if (!url || url.trim() === '' || url.trim() === '#') return '#';
-      // If the URL doesn't start with http or https, prepend https://
       if (!/^(https?:\/\/)/i.test(url)) {
         return `https://${url}`;
       }
       return url;
     };
-
     return `
       <footer class="site-footer">
         <div class="container">
@@ -54,10 +53,33 @@ window.PublicApp = (function () {
     `;
   }
 
+  // Extracted the rendering logic to be called by the real-time listener
+  async function renderProposalContent(holder, cfg, cfgId) {
+      if (!cfg) {
+        holder.innerHTML = `<div class="main-content-card" style="padding-top: 40px;"><div class="empty-wrap"><div class="empty-card"><h3>Invalid or Expired Link</h3><div class="small">The proposal was not found.</div></div></div></div>`;
+        return;
+      }
+      
+      await window.PublicUI.renderAllInto({ root: holder, cfg, cfgId });
+
+      if (document.querySelector('.highlight-carousel')) { new Swiper('.highlight-carousel', { loop: cfg.highlightFeatures.length > 2, slidesPerView: 1, spaceBetween: 16, autoplay: { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true, }, pagination: { el: '.swiper-pagination', clickable: true, }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 }, } }); }
+      
+      const header = $(".header-card");
+      if (header) {
+        const handleScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 20);
+        if (scrollListener) window.removeEventListener('scroll', scrollListener);
+        scrollListener = handleScroll;
+        window.addEventListener('scroll', scrollListener);
+        handleScroll();
+      }
+  }
+
   async function render(mount) {
-    if (scrollListener) {
-      window.removeEventListener('scroll', scrollListener);
-      scrollListener = null;
+    // Clean up any existing listeners before rendering a new page
+    if (scrollListener) window.removeEventListener('scroll', scrollListener);
+    if (currentConfigUnsubscribe) {
+        currentConfigUnsubscribe();
+        currentConfigUnsubscribe = null;
     }
 
     const settings = await Store.getSettings();
@@ -78,41 +100,26 @@ window.PublicApp = (function () {
     const [, seg1, seg2] = hash.split("/");
 
     if (seg1 === "p" && seg2) {
-      // NEW: Remember the last viewed proposal ID
       sessionStorage.setItem('lastProposalId', seg2);
+      holder.innerHTML = `<div class="hero" style="text-align:center"><div class="title">Loading proposal…</div></div>`;
+      
+      // Subscribe to real-time updates for this proposal
+      currentConfigUnsubscribe = Store.onConfigUpdate(seg2, (cfg) => {
+        console.log('Real-time proposal update received.');
+        renderProposalContent(holder, cfg, seg2);
+      });
+
     } else {
        holder.innerHTML = `<div class="main-content-card" style="padding-top: 40px;"><div class="empty-wrap"><div class="empty-card"><h3>No proposal loaded</h3><div class="small">This is a private link. Please use the URL provided to you.</div></div></div></div>`;
-      return;
-    }
-
-    holder.innerHTML = `<div class="hero" style="text-align:center"><div class="title">Loading proposal…</div></div>`;
-    try {
-      const cfg = await Store.getConfig(seg2);
-      if (!cfg) {
-        holder.innerHTML = `<div class="main-content-card" style="padding-top: 40px;"><div class="empty-wrap"><div class="empty-card"><h3>Invalid or Expired Link</h3><div class="small">The proposal was not found.</div></div></div></div>`;
-        return;
-      }
-      
-      await window.PublicUI.renderAllInto({ root: holder, cfg, cfgId: seg2 });
-
-      if (document.querySelector('.highlight-carousel')) { new Swiper('.highlight-carousel', { loop: cfg.highlightFeatures.length > 2, slidesPerView: 1, spaceBetween: 16, autoplay: { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true, }, pagination: { el: '.swiper-pagination', clickable: true, }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 }, } }); }
-      
-      const header = $(".header-card");
-      if (header) {
-        const handleScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 20);
-        scrollListener = handleScroll;
-        window.addEventListener('scroll', scrollListener);
-        handleScroll();
-      }
-
-    } catch (e) {
-      console.error("Failed to load proposal:", e);
-      holder.innerHTML = `<div class="main-content-card" style="padding-top: 40px;"><div class="empty-wrap"><div class="empty-card"><h3>Something went wrong</h3><div class="small">Please refresh or try again later.</div></div></div></div>`;
     }
   }
 
   async function renderPage(mount, pageKey) {
-    if (scrollListener) { window.removeEventListener('scroll', scrollListener); scrollListener = null; }
+    if (scrollListener) window.removeEventListener('scroll', scrollListener);
+    if (currentConfigUnsubscribe) {
+        currentConfigUnsubscribe();
+        currentConfigUnsubscribe = null;
+    }
 
     const settings = await Store.getSettings();
     const pageData = (settings.pages && settings.pages[pageKey]) 
@@ -120,8 +127,6 @@ window.PublicApp = (function () {
       : Store.defaults().settings.pages[pageKey];
       
     const pageTitle = pageKey === 'tos' ? 'Terms of Service' : 'Privacy Policy';
-    
-    // NEW: Get the remembered proposal ID for the back link
     const lastProposalId = sessionStorage.getItem('lastProposalId');
     const backLink = lastProposalId ? `#/p/${lastProposalId}` : '#/';
 
