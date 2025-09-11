@@ -1,4 +1,4 @@
-/* Details Modal & Print/Export Form (QR header; full features; watermark; bigger logo; centered signature labels) */
+/* Details Modal & Print/Export Form (QR header; full features; watermark; repeated page headers; compact page-3) */
 window.DetailsModal = (function () {
   const currency = (n) =>
     "₱" + Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -9,36 +9,75 @@ window.DetailsModal = (function () {
     s.id = "print-watermark-styles";
     s.textContent = `
 @media print {
-  .agreement-section .signature-area { margin-top: 7.5em !important; }
-  .agreement-section .legal-note     { margin-top: 7.5em !important; }
-  .brand-block { align-items: end !important; }
-  .brand-left  { align-items: end !important; }
-  .brand-left img { height: 56px !important; width: auto !important; }
-  .brand-contact { align-self: end !important; text-align: right !important; }
-  .brand-qr { width: 72px !important; height: 72px !important; align-self: end !important; }
-  .signature-area .sig-line { text-align: center !important; }
-  .signature-area .sig-line span { display: inline-block !important; margin-top: 6px !important; font-size: 10pt; color: #555; }
-  #print-view { position: relative; }
-  #print-view::before {
-    content: attr(data-watermark);
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: clamp(48pt, 8.5vw, 72pt);
-    line-height: 1.05;
-    font-weight: 600;
-    letter-spacing: .5px;
-    color: #000;
-    opacity: 0.06;
-    z-index: 0;
-    white-space: pre;
-    overflow-wrap: normal;
-    word-break: keep-all;
-    text-align: center;
-    pointer-events: none;
+  /* Global defaults */
+  #print-view .print-body{ font-size:11pt; }
+
+  /* Brand/header cluster: contact + QR stay together on the right */
+  .brand-block{
+    display:flex;
+    align-items:flex-end;
+    justify-content:flex-start;   /* key: no space-between so contact & QR are adjacent */
+    gap:12px;
   }
-  #print-view .print-body { position: relative; z-index: 1; }
-}`;
+  .brand-left{ display:flex; align-items:flex-end; gap:10px; }
+  .brand-left img{ height:56px !important; width:auto !important; }
+
+  .brand-contact{
+    margin-left:auto !important;  /* pushes contact (and next sibling QR) to the right */
+    text-align:right !important;
+    display:flex;
+    flex-direction:column;
+    gap:2pt;
+    align-items:flex-end;
+  }
+  .brand-qr{
+    width:72px !important; height:72px !important;
+    align-self:flex-end !important;
+    margin-left:8px;              /* small spacing beside contact */
+  }
+
+  /* Small separators for reused headers on p2 & p3 */
+  .page-header{ margin-bottom:8pt; border-bottom:1px solid #e5e7eb; padding-bottom:6pt; }
+
+  /* Watermark */
+  #print-view{ position:relative; }
+  #print-view::before{
+    content:attr(data-watermark);
+    position:fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%) rotate(-30deg);
+    font-size:clamp(48pt,8.5vw,72pt); line-height:1.05;
+    font-weight:600; letter-spacing:.5px; color:#000; opacity:.06;
+    z-index:0; white-space:pre; overflow-wrap:normal; word-break:keep-all;
+    text-align:center; pointer-events:none;
+  }
+  #print-view .print-body{ position:relative; z-index:1; }
+
+  /* Signature labels centered; spacing tuned */
+  .agreement-section .signature-area{ margin-top:7.5em !important; }
+  .agreement-section .legal-note{ margin-top:7.5em !important; }
+  .signature-area .sig-line{ text-align:center !important; }
+  .signature-area .sig-line span{ display:inline-block !important; margin-top:6px !important; font-size:10pt; color:#555; }
+
+  /* Page breaks */
+  .highlights-start{ break-before:page; } /* Page 2 */
+  .policies-start{ break-before:page; }   /* Page 3 */
+
+  /* Page 2 & 3 typography */
+  .print-faq, .print-policies{ font-size:11pt; line-height:1.25; }
+  .print-faq h3{ font-size:12pt; margin:10pt 0 6pt; }
+  .print-faq dt{ font-weight:600; margin:4pt 0 2pt; }
+  .print-faq dd{ margin:0 0 6pt 0; padding-left:1.2em; color:#333; }
+
+  .print-policies h3{ font-size:12pt; margin:10pt 0 6pt; }
+  .print-policies .policy-content{ margin:0 0 8pt; }
+  .print-policies .policy-content *{ font-size:11pt !important; line-height:1.25 !important; }
+  .print-policies .policy-content p,
+  .print-policies .policy-content li{ margin:8pt 0 !important; }
+  .print-policies ul, .print-policies ol{ margin:6pt 0 8pt 18pt; }
+
+  .section-break h2, .section-break h3{ margin:10pt 0 6pt; }
+}
+`;
     document.head.appendChild(s);
   }
 
@@ -50,6 +89,14 @@ window.DetailsModal = (function () {
   function buildQRImageSrc(data) {
     const d = encodeURIComponent(data);
     return `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${d}`;
+  }
+
+  /* Strip a leading H1–H6 so we don't duplicate headings; then wrap with our title */
+  function buildPolicySection(title, html) {
+    if (!html) return "";
+    let cleaned = html.trim();
+    cleaned = cleaned.replace(/^<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>\s*/i, "");
+    return `<h3>${title}</h3><div class="policy-content">${cleaned}</div>`;
   }
 
   async function open(pkg, cfg, cfgId) {
@@ -83,7 +130,7 @@ window.DetailsModal = (function () {
 
   async function openPrintForm(pkg, cfg, cfgId) {
     const savedInfo = (await Store.getProposalInfo(cfgId)) || {};
-    const settings = await Store.getSettings();
+    await Store.getSettings();
 
     Swal.fire({
       title: "Prepare for Export",
@@ -145,6 +192,9 @@ window.DetailsModal = (function () {
     const old = document.getElementById("print-view");
     if (old) old.remove();
 
+    const tosHTML = settings?.pages?.tos?.content || "";
+    const privacyHTML = settings?.pages?.privacy?.content || "";
+
     const printContainer = document.createElement("div");
     printContainer.id = "print-view";
     const companyName = settings.footer?.companyName || "Modern Cipher";
@@ -154,28 +204,35 @@ window.DetailsModal = (function () {
     const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     const allFeatures = (cfg.featuresMatrix || []).filter(f => (f.includedIn || []).includes(pkg.key));
     const includedHighlights = (cfg.highlightFeatures || []).filter(h => (h.includedIn || []).includes(pkg.key));
-    const dpPercent = cfg.proposal.downpaymentPercent || 50;
+    const dpPercent = cfg?.proposal?.downpaymentPercent ?? 50;
     const totalInvestment = (pkg.price || 0) + (pkg.hosting || 0);
     const downpaymentAmount = totalInvestment * (dpPercent / 100);
     const proposalUrl = resolveProposalUrl(settings, cfg);
     const qrSrc = buildQRImageSrc(proposalUrl);
 
+    const tosSection = tosHTML ? buildPolicySection("Terms of Service", tosHTML) : "";
+    const privSection = privacyHTML ? buildPolicySection("Privacy Policy", privacyHTML) : "";
+
+    const pageHeaderHTML = `
+      <div class="brand-block page-header">
+        <div class="brand-left">
+          <img src="app/assets/img/mc.png" alt="Logo">
+          <div>
+            <div class="brand-name">${companyInfo.companyName || ""}</div>
+            <div class="brand-addr">${companyInfo.address || ""}</div>
+          </div>
+        </div>
+        <div class="brand-contact">
+          <div class="email">${companyInfo.email || ""}</div>
+          <div class="phone">${companyInfo.phone || ""}</div>
+        </div>
+        <img class="brand-qr" alt="QR" src="${qrSrc}">
+      </div>`;
+
     printContainer.innerHTML = `
       <div class="print-body">
-        <div class="brand-block">
-          <div class="brand-left">
-            <img src="app/assets/img/mc.png" alt="Logo">
-            <div>
-              <div class="brand-name">${companyInfo.companyName || ""}</div>
-              <div class="brand-addr">${companyInfo.address || ""}</div>
-            </div>
-          </div>
-          <div class="brand-contact">
-            <div class="email">${companyInfo.email || ""}</div>
-            <div class="phone">${companyInfo.phone || ""}</div>
-          </div>
-          <img id="proposalQR" class="brand-qr" alt="QR" src="${qrSrc}">
-        </div>
+        <!-- ===== Page 1 ===== -->
+        ${pageHeaderHTML}
 
         <p class="print-date">${today}</p>
 
@@ -225,7 +282,9 @@ window.DetailsModal = (function () {
           </ul>
         </div>
 
+        <!-- ===== Page 2 ===== -->
         <div class="highlights-start"></div>
+        ${pageHeaderHTML}
 
         ${
           includedHighlights.length > 0
@@ -248,17 +307,44 @@ window.DetailsModal = (function () {
           </div>
           <p class="legal-note">${companyInfo.companyName || ""} | Confidential Proposal</p>
         </div>
+
+        <!-- FAQs at bottom of Page 2 -->
+        <div class="section-break print-faq">
+          <h3>Frequently Asked Questions</h3>
+          ${
+            cfg.faq && cfg.faq.length
+              ? `<dl>${cfg.faq.map(f => `<dt>${f.q}</dt><dd>${f.a}</dd>`).join("")}</dl>`
+              : `<p class="muted">No FAQs provided.</p>`
+          }
+        </div>
+
+        <!-- ===== Page 3 ===== -->
+        <div class="policies-start"></div>
+        ${pageHeaderHTML}
+
+        ${
+          (tosSection || privSection)
+            ? `<div class="print-policies">
+                 ${tosSection}
+                 ${privSection}
+               </div>`
+            : ""
+        }
       </div>
     `;
 
     document.body.appendChild(printContainer);
-    const qrImg = document.getElementById("proposalQR");
+
+    const qrImgs = Array.from(printContainer.querySelectorAll('.brand-qr'));
     const ready = new Promise((resolve) => {
-      let done = false;
-      const finish = () => { if (!done) { done = true; resolve(); } };
-      qrImg.addEventListener("load", finish, { once: true });
-      qrImg.addEventListener("error", finish, { once: true });
-      setTimeout(finish, 2000);
+      let left = qrImgs.length || 1, done=false;
+      const finish = () => { if (!done && --left <= 0){ done = true; resolve(); } };
+      if (qrImgs.length === 0) resolve();
+      qrImgs.forEach(img => {
+        img.addEventListener("load", finish, { once: true });
+        img.addEventListener("error", finish, { once: true });
+      });
+      setTimeout(resolve, 1500);
     });
 
     await ready;

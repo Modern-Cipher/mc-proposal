@@ -87,3 +87,631 @@
 .ql-editor h2 { font-size: 1.5em !important; border-bottom: 1px solid var(--border) !important; padding-bottom: 0.3em !important; margin-bottom: 1em !important; }
 .ql-editor h3 { font-size: 1.25em !important; margin-top: 1.5em !important; }
 .ql-editor p, .ql-editor li { line-height: 1.6 !important; }
+
+/* ===== MODAL-ONLY FIXES (append-only) ===== */
+
+/* FAQ: gawin grid na 1 column para full-width ang answer editor */
+.modal-box #faqEditor .faq-row{
+  align-items: stretch;           /* keep edges flush */
+}
+.modal-box #faqEditor .faq-inputs{
+  display: grid !important;
+  grid-template-columns: 1fr !important;  /* one column only */
+  grid-auto-rows: auto;
+  gap: 8px;
+}
+.modal-box #faqEditor .faq-inputs .faq-q{ grid-column: 1 / -1; }
+.modal-box #faqEditor .faq-inputs .quill-editor-faq{ grid-column: 1 / -1; width: 100%; }
+
+/* ensure inner quill takes full width */
+.modal-box #faqEditor .quill-editor-faq .ql-toolbar,
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  width: 100%;
+}
+
+/* OPTIONAL: kung gusto mong may minimum height pa rin (tanggalin kung ayaw) */
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  min-height: 160px;
+}
+
+/* Icon picker: keep same position, icons-only (hide text labels) */
+.modal-box .icon-picker .icon-menu .icon-item{
+  font-size: 0;                   /* hide any text nodes/labels */
+}
+.modal-box .icon-picker .icon-menu .icon-item i,
+.modal-box .icon-picker .icon-menu .icon-item svg{
+  font-size: 22px; width: 22px; height: 22px;
+}
+
+/* Slightly wider grid para mas kita ang icons; POSITIONS UNAFFECTED */
+.modal-box .icon-picker .icon-menu{
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1024px){ .modal-box .icon-picker .icon-menu{ grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 768px){  .modal-box .icon-picker .icon-menu{ grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 520px){  .modal-box .icon-picker .icon-menu{ grid-template-columns: repeat(4, 1fr); } }
+
+/* optional: fixed height per FAQ answer */
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  height: 180px;    /* lock height */
+  max-height: 180px;
+  overflow-y: auto; /* scroll kapag mahaba */
+}
+
+/* ===== ADMIN ONLY ===== */
+
+/* Auth, Shell, Main, Mobile styles (unchanged) */
+.auth-wrap{ min-height:100vh; display:grid; place-items:center; padding:28px; background:linear-gradient(180deg, var(--bg), var(--bg2)) }
+.auth-card{ width:min(860px,96vw); display:grid; grid-template-columns:1.2fr 1fr; overflow:hidden; border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); background:#fff }
+.auth-hero{ padding:28px; background:linear-gradient(160deg,#eef4ff,#ffffff); border-right:1px solid var(--border) }
+.auth-form{ padding:28px }
+.admin-shell{ min-height:100vh; display:grid; grid-template-columns:280px 1fr }
+.admin-sidebar{ background:#fff; border-right:1px solid var(--border); padding:16px 12px; position:sticky; top:0; height:100vh }
+.admin-brand{ display:flex; align-items:center; gap:10px; margin-bottom:14px }
+.admin-brand .logo{ width:36px; height:36px; border-radius:10px; overflow:hidden; border:1px solid var(--border); background:#fff }
+.admin-brand img{ width:100%; height:100%; object-fit:cover }
+.admin-nav{ display:flex; flex-direction:column; gap:6px; margin-top:6px }
+.admin-link{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; text-decoration:none; color:var(--text) }
+.admin-link:hover{ background:#eef4ff; }
+.admin-link.active{ background:#eaf2ff; border:1px solid #bfdbfe; font-weight:600 }
+.admin-main{ min-height:100vh; display:flex; flex-direction:column }
+.admin-topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 18px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10 }
+.search{ display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:#fff; width:min(520px, 50vw) }
+.icon-btn{ border:1px solid var(--border); background:#fff; padding:10px 12px; border-radius:12px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.icon-btn:hover{ background:#f8fbff }
+.admin-content{ padding:18px; flex:1 1 auto }
+.kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px }
+.kpi{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow) }
+.kpi .k{ color:var(--muted); font-size:.9rem } .kpi .v{ font-size:1.6rem; font-weight:800 }
+.table-responsive{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:16px; border:1px solid var(--border); background:#fff; box-shadow:var(--shadow); }
+.table{ width:100%; border-collapse:collapse }
+.table th,.table td{ padding:12px 12px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap }
+.table th{ background:#f3f8ff }
+.row-actions{ display:flex; gap:8px }
+.admin-footer{ padding:14px 18px; color:var(--muted); border-top:1px solid var(--border); background:#fff }
+.admin-mobile-bar{ display:none }
+@media (max-width:860px){ .auth-card{ grid-template-columns:1fr } .admin-shell{ grid-template-columns:1fr } .admin-sidebar{ display:none } .admin-topbar{ flex-wrap:wrap; gap:8px } .search{ width:100% } .admin-topbar > div:last-child{ width:100%; display:flex; justify-content:flex-end; gap:8px } .admin-content{ padding:14px; padding-bottom:110px } .kpis{ grid-template-columns:1fr 1fr } .admin-mobile-bar{ position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:999; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; background:#ffffffe6; border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:8px; backdrop-filter:blur(8px); padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px); } .admin-mobile-bar .navbtn{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 10px; border-radius:12px; color:var(--text); text-decoration:none; border:1px solid transparent; font-size:.82rem; } .admin-mobile-bar .navbtn.active, .admin-mobile-bar .navbtn:hover{ background:#eef4ff; border-color:#dbeafe } }
+@media (max-width:640px){ .kpis{ grid-template-columns:1fr } }
+
+/* Modal styles (unchanged) */
+.modal-overlay{ position:fixed; inset:0; z-index:1000; background:#0004; backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal-box{ width:min(1200px,96vw); max-height:90vh; background:#fff; border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:16px 18px; border-bottom:1px solid var(--border); background:#fff; position:sticky; top:0; z-index:1; }
+.modal-body{ padding:18px; overflow-y:auto; overflow-x:hidden }
+.modal-body .input{ padding:13px 14px }
+.modal-actions{ padding:14px 18px; border-top:1px solid var(--border); background:#fff; position:sticky; bottom:0; z-index:1; display:flex; gap:10px; flex-wrap:wrap; }
+
+/* Other admin styles (unchanged) */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #f3f4f6; border: 1px solid #e5e7eb; font-size: .85rem; font-weight: 600; }
+.chip.success { background: #dcfce7; border-color: #86efac; color: #166534; }
+.pkg-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+.packages-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.package-col { display: flex; flex-direction: column; gap: 6px; }
+.package-col label { margin-top: 4px; }
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+.matrix-wrap table { width: 100%; border-collapse: collapse; }
+.matrix-wrap th, .matrix-wrap td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; vertical-align: middle; }
+.matrix-wrap th { background: #f8fbff; font-size: 0.85rem; }
+.matrix-wrap td { background: #fff; }
+.matrix-wrap tr:last-child td { border-bottom: 0; }
+.matrix-wrap td input[type="checkbox"] { width: 20px; height: 20px; display: block; margin: 0 auto; }
+.matrix-wrap td .input { padding: 8px 10px; font-size: 0.9rem; }
+.rm-row { display: flex; align-items: center; justify-content: center; color: #ef4444 !important; }
+.faq-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.faq-inputs { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 900px) { .packages-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .pkg-row { grid-template-columns: 1fr; } .packages-grid { grid-template-columns: 1fr; } .matrix-wrap table, .matrix-wrap thead, .matrix-wrap tbody, .matrix-wrap th, .matrix-wrap td, .matrix-wrap tr { display: block; } .matrix-wrap thead { display: none; } .matrix-wrap tr { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; padding: 8px; } .matrix-wrap td { border: none; border-bottom: 1px dashed #e5e7eb; position: relative; padding-left: 40% !important; text-align: right; white-space: normal; display: flex; align-items: center; justify-content: flex-end; } .matrix-wrap tr td:first-child { display: none; } .matrix-wrap td:last-child { border-bottom: none; } .matrix-wrap td::before { content: attr(data-label); position: absolute; left: 8px; width: calc(40% - 16px); text-align: left; font-weight: bold; color: var(--muted); } .matrix-wrap td input { width: 100%; } .matrix-wrap td input[type=checkbox] { width: 20px; height: 20px; } .faq-row { flex-wrap: wrap; } .faq-inputs { grid-template-columns: 1fr; } }
+
+/* ===== Settings Page & Quill Editor Styles (UPDATED) ===== */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .full-width { grid-column: 1 / -1; }
+
+/* NEW: Grid layout for the two editors */
+.content-editors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+@media (max-width: 1024px) {
+    .content-editors-grid {
+        grid-template-columns: 1fr; /* Stack on smaller screens */
+    }
+}
+
+.quill-editor { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 8px; }
+.ql-toolbar { border-bottom: 1px solid var(--border) !important; background: #f9fafb; }
+.ql-container { min-height: 250px; max-height: 400px; overflow-y: auto; font-family: Poppins, sans-serif !important; font-size: 1rem !important; color: var(--text) !important; }
+.ql-editor { padding: 12px 16px; }
+.ql-editor > :first-child { margin-top: 0; }
+.ql-editor > :last-child { margin-bottom: 0; }
+.ql-editor h2 { font-size: 1.5em !important; border-bottom: 1px solid var(--border) !important; padding-bottom: 0.3em !important; margin-bottom: 1em !important; }
+.ql-editor h3 { font-size: 1.25em !important; margin-top: 1.5em !important; }
+.ql-editor p, .ql-editor li { line-height: 1.6 !important; }
+
+/* ===== MODAL-ONLY FIXES (append-only) ===== */
+
+/* FAQ: gawin grid na 1 column para full-width ang answer editor */
+.modal-box #faqEditor .faq-row{
+  align-items: stretch;           /* keep edges flush */
+}
+.modal-box #faqEditor .faq-inputs{
+  display: grid !important;
+  grid-template-columns: 1fr !important;  /* one column only */
+  grid-auto-rows: auto;
+  gap: 8px;
+}
+.modal-box #faqEditor .faq-inputs .faq-q{ grid-column: 1 / -1; }
+.modal-box #faqEditor .faq-inputs .quill-editor-faq{ grid-column: 1 / -1; width: 100%; }
+
+/* ensure inner quill takes full width */
+.modal-box #faqEditor .quill-editor-faq .ql-toolbar,
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  width: 100%;
+}
+
+/* OPTIONAL: kung gusto mong may minimum height pa rin (tanggalin kung ayaw) */
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  min-height: 160px;
+}
+
+/* optional: fixed height per FAQ answer */
+.modal-box #faqEditor .quill-editor-faq .ql-container{
+  height: 180px;    /* lock height */
+  max-height: 180px;
+  overflow-y: auto; /* scroll kapag mahaba */
+}
+
+
+/* === ICON PICKER — clean layout, hidden by default === */
+.modal-box .icon-picker{ position: relative; }
+
+/* menu hidden by default */
+.modal-box .icon-picker .icon-menu{
+  display: none !important;            /* override older display rules */
+  position: absolute;
+  z-index: 1000;
+  top: 36px;                           /* under the input */
+  left: 0;
+  width: min(520px, 72vw);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  max-height: 360px;
+  overflow: auto;
+  padding: 0;                          /* we’ll pad inner sections */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .15s ease, transform .15s ease, visibility .15s ease;
+}
+
+/* show when .open */
+.modal-box .icon-picker.open .icon-menu{
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* sticky search bar sa loob ng menu */
+.modal-box .icon-picker .icon-menu .icon-search{
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+}
+.modal-box .icon-picker .icon-menu .icon-search .input{
+  width: 100%;
+  padding: 10px 12px;
+}
+
+/* the actual grid of icons */
+.modal-box .icon-picker .icon-menu .icon-grid{
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+@media (max-width: 1200px){ .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 900px){  .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 640px){  .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns: repeat(4, 1fr); } }
+
+/* icon tiles */
+.modal-box .icon-picker .icon-item{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #fff;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-box .icon-picker .icon-item i{ font-size: 22px; width: 22px; height: 22px; }
+.modal-box .icon-picker .icon-item:hover{ background:#f8fafc; border-color:#e5e7eb; }
+
+/* tidy preview beside input */
+.modal-box .icon-picker .icon-display .icon-preview{
+  width: 28px; height: 28px; display:inline-flex; align-items:center; justify-content:center;
+  border-radius: 8px; background:#f3f4f6;
+}
+
+/* ICON PICKER PORTAL — sits above everything inside the modal */
+.modal-box .icon-portal{
+  position: absolute;   /* relative to .modal-box */
+  z-index: 5000;
+  display: none;        /* shown by JS when open */
+  left: 0; top: 0;      /* JS will set left/top per open picker */
+}
+
+/* when the menu is moved into the portal, force it visible & not absolutely tied to a cell */
+.modal-box .icon-portal .icon-menu{
+  display: block !important;
+  position: static !important;   /* let the portal box control position/size */
+  max-height: 360px;             /* safety */
+}
+
+/* optional: little elevation on the floating menu */
+.modal-box .icon-portal .icon-menu{
+  box-shadow: 0 16px 40px rgba(0,0,0,.12);
+  border-radius: 12px;
+}
+
+/* === ICON PICKER PORTAL (on top of everything) === */
+.mc-icon-portal{
+  position: fixed;
+  z-index: 2147483647;
+  display: none;
+  left: 0;
+  top: 0;
+}
+
+/* the moved menu should behave like a normal panel (block), not a grid */
+.mc-icon-portal .icon-menu{
+  display: block !important;
+  position: static !important;
+  width: 100%;
+  max-height: 360px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.12);
+  padding: 0; /* padding nasa inner sections */
+}
+
+/* keep sticky search header inside the floating menu */
+.mc-icon-portal .icon-menu .icon-search{
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+}
+
+.mc-icon-portal .icon-menu .icon-search .input{
+  width: 100%;
+  padding: 10px 12px;
+}
+
+/* grid is for the icon list ONLY */
+.mc-icon-portal .icon-menu .icon-grid{
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+@media (max-width:1200px){ .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns: repeat(6, 1fr); } }
+@media (max-width:900px){  .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns: repeat(5, 1fr); } }
+@media (max-width:640px){  .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns: repeat(4, 1fr); } }
+
+
+/* ===========================
+   MOBILE TOPBAR: single row + slimmer
+   =========================== */
+@media (max-width: 860px){
+  .admin-topbar{
+    flex-wrap: nowrap !important;        /* one row only */
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;       /* slimmer bar */
+  }
+  .search{
+    width: auto !important;              /* stop taking 100% */
+    flex: 1 1 auto !important;           /* grow to fill */
+    min-width: 0;                         /* allow shrink on tiny screens */
+    padding: 8px 10px !important;        /* slimmer search field */
+    gap: 8px !important;
+  }
+  /* right side (logout buttons) stays compact on the same row */
+  .admin-topbar > div:last-child{
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex: 0 0 auto !important;
+  }
+  /* slightly smaller icon buttons on mobile */
+  .icon-btn{ padding: 8px 10px !important; }
+}
+
+/* ===========================
+   MOBILE BOTTOM BAR: floating, not edge-to-edge
+   =========================== */
+@media (max-width: 860px){
+  .admin-mobile-bar{
+    /* keep centered but add side margins and cap width */
+    width: min(520px, calc(100% - 24px)) !important; /* 12px margin each side */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+
+    /* stronger floating look */
+    border-radius: 16px !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,.12) !important;
+    background: rgba(255,255,255,.92) !important;
+    backdrop-filter: blur(8px);
+  }
+
+  /* make sure nav buttons shrink nicely */
+  .admin-mobile-bar .navbtn{ min-width: 0; }
+}
+
+/* keep enough space for the floating bar */
+@media (max-width: 860px){
+  .admin-content{ padding-bottom: 110px !important; }
+}
+/* ===========================
+   MOBILE OVERRIDES (APPEND ONLY)
+   =========================== */
+
+/* Sidebar off, bottom bar on (reinforce) */
+@media (max-width: 860px){
+  .admin-sidebar{ display:none !important; }
+  .admin-mobile-bar{ display:grid !important; }
+  .admin-content{ padding-bottom:110px !important; } /* space for bottom bar */
+}
+
+/* Clients table -> Card layout on mobile */
+@media (max-width: 768px){
+  /* hide all table headers for our .table (Clients) */
+  .table thead{ display:none !important; }
+
+  /* turn rows into cards */
+  .table tbody{ display:grid; gap:10px; }
+  .table tbody tr{
+    display:block;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:8px;
+  }
+  .table tbody td{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    border:none;
+    border-bottom:1px dashed var(--border);
+    padding:10px 12px;
+    white-space:normal;
+  }
+  .table tbody td:last-child{ border-bottom:none; }
+
+  /* labels via nth-child (no need to touch JS/HTML) */
+  #clientsRows td:nth-child(1)::before{ content:"Client"; font-weight:600; color:var(--muted); }
+  #clientsRows td:nth-child(2)::before{ content:"Email"; font-weight:600; color:var(--muted); }
+  #clientsRows td:nth-child(3)::before{ content:"Updated"; font-weight:600; color:var(--muted); }
+  #clientsRows td:nth-child(4)::before{ content:"Status"; font-weight:600; color:var(--muted); }
+  #clientsRows td:nth-child(5)::before{ content:"Actions"; font-weight:600; color:var(--muted); }
+
+  /* make actions block wrap nicely */
+  #clientsRows td:nth-child(5){ display:block; }
+  #clientsRows .row-actions{ flex-wrap:wrap; gap:8px; }
+}
+
+/* Settings page: stack forms when small */
+@media (max-width: 768px){
+  .form-grid{ grid-template-columns:1fr !important; }
+  .content-editors-grid{ grid-template-columns:1fr !important; }
+}
+
+/* KPIs: single column on very small screens */
+@media (max-width: 480px){
+  .kpis{ grid-template-columns:1fr !important; }
+}
+
+/* make sure the floating icon picker portal always sits on top */
+.mc-icon-portal{ z-index:2147483647 !important; }
+
+
+
+
+
+
+.modal-box .icon-picker.open .icon-menu{ display:block !important; opacity:1; visibility:visible; transform:translateY(0) }
+
+.modal-box .icon-picker .icon-menu .icon-search{ position:sticky; top:0; background:#fff; padding:8px; border-bottom:1px solid var(--border); z-index:1 }
+.modal-box .icon-picker .icon-menu .icon-search .input{ width:100%; padding:10px 12px }
+.modal-box .icon-picker .icon-menu .icon-grid{ display:grid; grid-template-columns:repeat(8,1fr); gap:10px; padding:10px }
+@media (max-width:1200px){ .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns:repeat(6,1fr) } }
+@media (max-width:900px){  .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns:repeat(5,1fr) } }
+@media (max-width:640px){  .modal-box .icon-picker .icon-menu .icon-grid{ grid-template-columns:repeat(4,1fr) } }
+.modal-box .icon-picker .icon-item{ font-size:0; display:inline-flex; align-items:center; justify-content:center; padding:8px; border-radius:10px; border:1px solid transparent; background:#fff; cursor:pointer }
+.modal-box .icon-picker .icon-item i{ font-size:22px; width:22px; height:22px }
+.modal-box .icon-picker .icon-item:hover{ background:#f8fafc; border-color:#e5e7eb }
+.modal-box .icon-picker .icon-display .icon-preview{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:#f3f4f6 }
+
+/* Global icon-portal (so menu never clips) */
+.mc-icon-portal{ position:fixed; z-index:2147483647; display:none; left:0; top:0 }
+.mc-icon-portal .icon-menu{
+  display:block !important; position:static !important; width:100%; max-height:360px; overflow:auto;
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 16px 40px rgba(0,0,0,.12); padding:0
+}
+.mc-icon-portal .icon-menu .icon-search{ position:sticky; top:0; background:#fff; padding:8px; border-bottom:1px solid var(--border); z-index:1 }
+.mc-icon-portal .icon-menu .icon-search .input{ width:100%; padding:10px 12px }
+.mc-icon-portal .icon-menu .icon-grid{ display:grid; grid-template-columns:repeat(8,1fr); gap:10px; padding:10px }
+@media (max-width:1200px){ .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns:repeat(6,1fr) } }
+@media (max-width:900px){  .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns:repeat(5,1fr) } }
+@media (max-width:640px){  .mc-icon-portal .icon-menu .icon-grid{ grid-template-columns:repeat(4,1fr) } }
+
+/* =========================
+   SETTINGS / QUILL
+   ========================= */
+.content-editors-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+@media (max-width:1024px){ .content-editors-grid{ grid-template-columns:1fr } }
+.quill-editor{ background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:8px }
+.ql-toolbar{ border-bottom:1px solid var(--border) !important; background:#f9fafb }
+.ql-container{ min-height:250px; max-height:400px; overflow-y:auto; font-family:Poppins,sans-serif !important; font-size:1rem !important; color:var(--text) !important }
+.ql-editor{ padding:12px 16px }
+.ql-editor > :first-child{ margin-top:0 }
+.ql-editor > :last-child{ margin-bottom:0 }
+.ql-editor h2{ font-size:1.5em !important; border-bottom:1px solid var(--border) !important; padding-bottom:.3em !important; margin-bottom:1em !important }
+.ql-editor h3{ font-size:1.25em !important; margin-top:1.5em !important }
+.ql-editor p,.ql-editor li{ line-height:1.6 !important }
+
+/* =========================
+   MOBILE: GLOBAL ADJUSTMENTS
+   ========================= */
+@media (max-width:860px){
+  /* one-row topbar: search + logout */
+  .admin-topbar{ flex-wrap:nowrap; gap:8px; padding:10px 12px }
+  .search{ width:auto; flex:1 1 auto; min-width:0; padding:8px 10px; gap:8px }
+  .admin-topbar > div:last-child{ width:auto; display:flex; align-items:center; gap:8px; flex:0 0 auto }
+  .icon-btn{ padding:8px 10px }
+  /* content space for floating bar */
+  .admin-content{ padding:14px; padding-bottom:120px !important }
+}
+
+/* KPIs single column small screens */
+@media (max-width:640px){ .kpis{ grid-template-columns:1fr } }
+
+/* =========================
+   MOBILE: EDIT/ADD MODAL – FIXED
+   (no more overlapping, all inputs type-able)
+   ========================= */
+@media (max-width:600px){
+  /* let modal use full viewport to avoid cramped area */
+  .modal-box{ width:100vw; height:100dvh; max-height:none; border-radius:0 }
+  .modal-body{ padding:14px 14px 120px }
+  .modal-actions{ padding:12px 14px }
+  /* bigger tap targets */
+  .modal-box .input, .modal-box select, .modal-box textarea{ font-size:16px; padding:14px 16px; line-height:1.35 }
+  /* stack all form grids to 1 column */
+  .pkg-row{ grid-template-columns:1fr }
+  .packages-grid{ grid-template-columns:1fr }
+  .form-grid{ grid-template-columns:1fr }
+  .form-grid-3{ grid-template-columns:1fr }
+  .faq-row{ flex-wrap:wrap }
+  .faq-inputs{ grid-template-columns:1fr }
+  /* FAQ quill editor: full width, auto height (no clipping) */
+  .modal-box #faqEditor .quill-editor-faq .ql-toolbar,
+  .modal-box #faqEditor .quill-editor-faq .ql-container{ width:100% }
+  .modal-box #faqEditor .quill-editor-faq .ql-container{ min-height:160px; max-height:none; height:auto }
+}
+
+/* =========================
+   MOBILE: MATRIX -> CARD (no hidden columns)
+   ========================= */
+@media (max-width:768px){
+  .matrix-wrap table,
+  .matrix-wrap thead,
+  .matrix-wrap tbody,
+  .matrix-wrap th,
+  .matrix-wrap td,
+  .matrix-wrap tr{ display:block }
+  .matrix-wrap thead{ display:none }
+  .matrix-wrap tr{ border:1px solid var(--border); border-radius:12px; margin:10px; margin-bottom:12px; padding:6px }
+
+  /* two-column row: label (left) + control (right) */
+  .matrix-wrap td{
+    border:none; border-bottom:1px dashed #e5e7eb;
+    display:grid; grid-template-columns:42% 58%; align-items:center;
+    gap:8px; padding:10px 12px; white-space:normal; text-align:left;
+  }
+  .matrix-wrap td:last-child{ border-bottom:none }
+
+  .matrix-wrap td::before{
+    content:attr(data-label);
+    font-weight:600; color:var(--muted)
+  }
+
+  /* first cell (Feature name): input takes full width, no pseudo-label */
+  .matrix-wrap td:first-child{ grid-template-columns:1fr }
+  .matrix-wrap td:first-child::before{ content:none }
+  .matrix-wrap td:first-child .input{ width:100% }
+
+  /* checkboxes align right but don’t stretch */
+  .matrix-wrap td input[type="checkbox"]{ margin-left:auto; width:20px; height:20px }
+}
+
+/* =========================
+   MOBILE: CLIENTS TABLE -> CARDS
+   ========================= */
+@media (max-width:768px){
+  .table thead{ display:none !important }
+  .table tbody{ display:grid; gap:10px }
+  .table tbody tr{
+    display:block; background:#fff; border:1px solid var(--border);
+    border-radius:12px; box-shadow:var(--shadow); padding:8px
+  }
+  .table tbody td{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:10px; border:none; border-bottom:1px dashed var(--border);
+    padding:10px 12px; white-space:normal
+  }
+  .table tbody td:last-child{ border-bottom:none }
+  #clientsRows td:nth-child(1)::before{ content:"Client"; font-weight:600; color:var(--muted) }
+  #clientsRows td:nth-child(2)::before{ content:"Email"; font-weight:600; color:var(--muted) }
+  #clientsRows td:nth-child(3)::before{ content:"Updated"; font-weight:600; color:var(--muted) }
+  #clientsRows td:nth-child(4)::before{ content:"Status"; font-weight:600; color:var(--muted) }
+  #clientsRows td:nth-child(5)::before{ content:"Actions"; font-weight:600; color:var(--muted) }
+  #clientsRows td:nth-child(5){ display:block }
+  #clientsRows .row-actions{ flex-wrap:wrap; gap:8px }
+}
+
+/* =========================
+   MOBILE: FLOATING BOTTOM BAR
+   ========================= */
+@media (max-width:860px){
+  .admin-sidebar{ display:none }
+  .admin-mobile-bar{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:12px; z-index:999; display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(60px,1fr)); gap:8px;
+    width:min(520px,calc(100% - 24px));
+    background:rgba(255,255,255,.92); border:1px solid var(--border);
+    border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,.12); padding:8px;
+    backdrop-filter:blur(8px);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px);
+  }
+  .admin-mobile-bar .navbtn{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:8px 10px; border-radius:12px; color:var(--text);
+    text-decoration:none; border:1px solid transparent; font-size:.82rem; min-width:0
+  }
+  .admin-mobile-bar .navbtn.active,
+  .admin-mobile-bar .navbtn:hover{ background:#eef4ff; border-color:#dbeafe }
+}
+
+/* =========================
+   MOBILE: BOTTOM DRAWER (External Links)
+   ========================= */
+.drawer-overlay{ position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.35); backdrop-filter:blur(2px); display:none; align-items:flex-end }
+.drawer-overlay.show{ display:flex }
+.drawer-panel{ width:100%; background:#fff; border-top-left-radius:16px; border-top-right-radius:16px; box-shadow:0 -12px 32px rgba(0,0,0,.18); transform:translateY(100%); transition:transform .16s ease; padding:10px 12px 12px }
+.drawer-panel.open{ transform:translateY(0) }
+.drawer-handle{ width:44px; height:5px; border-radius:999px; background:#e5e7eb; margin:6px auto 10px }
+.drawer-header{ display:flex; align-items:center; justify-content:space-between; padding:0 6px 6px }
+.drawer-links{ display:grid; gap:8px; padding:6px }
+.drawer-link{ display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:12px; padding:12px; text-decoration:none; color:inherit; background:#fff }
+.drawer-link i{ font-size:20px }
+.drawer-link:hover{ background:#f8fafc }
